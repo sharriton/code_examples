@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/Steve/CLionProjects/BPB_Synonym/main.cpp
+iostream
+-
+string
+-
+fstream
+-
+sstream
+-
+istream
+-
+set
+-
+algorithm
+-
+functional
+-
+iterator
+-
+vector
+-
+
