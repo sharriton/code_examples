@@ -7,6 +7,8 @@ __________________
 
 This was practice with OOP. The goal was to pull records from a text file with variable size customer records, fill each customers corresponding object with data, manipulate the data, sort the data, find average values of all customers etc.
 
+the customers.txt file has the data in it. The first input response that is needed is the file path of the customers.txt file. If you run the program in terminal, all you have to do is drag the file into the terminal window, drop it, and press enter and it should work just fine.
+
 
 
 
