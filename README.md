@@ -2,6 +2,7 @@
 C++ coding examples
 
 Customer
+__________________
 
 This was a practice with OOP. The goal was to pull records from a text file with variable size customer records, fill each customers corresponding object with data, manipulate the data, sort the data, find average values of all customers etc.
 
@@ -11,6 +12,7 @@ This was a practice with OOP. The goal was to pull records from a text file with
 
 
 BPB Synonymn
+__________________
 
 This app was designed for Vtown Cartel Music. It's still a work in progress. There's more functionality that the client wants. 
 Many of the OOP items have yet to be fully installed. Vtown is a music licensing company here in California. They have a 
