@@ -5,7 +5,7 @@ __________________
 Customer
 __________________
 
-This was a practice with OOP. The goal was to pull records from a text file with variable size customer records, fill each customers corresponding object with data, manipulate the data, sort the data, find average values of all customers etc.
+This was practice with OOP. The goal was to pull records from a text file with variable size customer records, fill each customers corresponding object with data, manipulate the data, sort the data, find average values of all customers etc.
 
 
 
