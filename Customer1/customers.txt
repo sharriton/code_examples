@@ -1,0 +1,5 @@
+﻿Harriton,Steven,39,1610 Blackwall Drive,true,4,coder
+Hampton,George,27,823 Stella St.,false,1,stuntman
+Scottsdale,Betty,30,98354 Lassen lane,true,4,actress
+Hale,David,55,524 Alvera st.,true,6,handyman
+Teller,Jane,43,2765 Nardis Way,false,1,cat enthusiast
