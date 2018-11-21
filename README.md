@@ -8,6 +8,8 @@ This was a practice with OOP. The goal was to pull records from a text file with
 
 
 
+
+
 BPB Synonymn
 
 This app was designed for Vtown Cartel Music. It's still a work in progress. There's more functionality that the client wants. 
