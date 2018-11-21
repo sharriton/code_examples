@@ -1,6 +1,12 @@
 # code_examples
 C++ coding examples
 
+Customer
+
+This was a practice with OOP. The goal was to pull records from a text file with variable size customer records, fill each customers corresponding object with data, manipulate the data, sort the data, find average values of all customers etc.
+
+
+
 
 BPB Synonymn
 
@@ -17,3 +23,8 @@ without duplicate keywords in the main database.
 
 Due to the nature of my contract, I can’t upload the main database. The code opens in a text file or IDE if you want to 
 see my work, but it won't actually run without the BPB database csv. The test keyword text file is included. 
+
+
+
+
+
