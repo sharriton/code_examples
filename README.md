@@ -1,6 +1,7 @@
 # code_examples
 C++ coding examples
 
+__________________
 Customer
 __________________
 
@@ -10,7 +11,7 @@ This was a practice with OOP. The goal was to pull records from a text file with
 
 
 
-
+__________________
 BPB Synonymn
 __________________
 
