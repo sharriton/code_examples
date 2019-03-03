@@ -31,7 +31,25 @@ without duplicate keywords in the main database.
 Due to the nature of my contract, I can’t upload the main database. The code opens in a text file or IDE if you want to 
 see my work, but it won't actually run without the BPB database csv. The test keyword text file is included. 
 
+___________________
+BPB New Library
+___________________
 
+Bullet Proof Bear is a music library company that administers rights on a collection of music. When a new library
+is aquired, this program will help to determine if the aquired tracks need to have their registrations updated
+or if they need to be registered for the first time.
+ 
+This program checks if a music composition is registered with the appropriate performing rights organization.
+The bpb.csv holds the data for all the compositions that need to be checked. The ascap.csv, bmi.csv and sesac.csv
+files hold the data for the 3 PRO's being searched. A composition can have multiple publishers who each have a
+PRO they are affiliated with. The program first imports track title, all writers, all publishers, PRO's assigned
+to publishers, and the publishing share of all the 45,000+ tracks in the bpb.csv. It then gives the user an
+option to print all the titles to make sure they were imported correctly. After that the user is given the option
+of having the program open the browser to each PRO's web site so the user can download the appropriate csv files.
+ 
+The program then imports the data from each PRO and searches it for titles matching the titles of BPB tracks. Then
+it prints out the track titles and the registrations they are missing into results.txt.
 
-
+Due to the nature of my contract, I can’t upload the main database. The code opens in a text file or IDE if you want to 
+see my work, but it won't actually run without the BPB database csv.
 
