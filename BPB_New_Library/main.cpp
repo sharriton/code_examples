@@ -63,7 +63,6 @@ int main()
     std::cout << "\n<Press Enter to begin searching the PRO csv for matches to BPB titles>\n";
     std::cin.ignore();
     std::cout << "\n<...Searching...>\n";
-//    std::cout << "";
 
     std::thread worker1;
     std::thread worker2;
