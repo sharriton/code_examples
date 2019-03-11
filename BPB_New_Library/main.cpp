@@ -1,5 +1,5 @@
-/**************************************************************************************************
-    BPB New Library 1.0
+/***************************************************************************************************************
+    BPB New Library 2.0
     Author: Steven Harriton, 2019
     email: stevenharriton@gmail.com
 
@@ -13,8 +13,9 @@
     2019-2-15:  search algorithm optimizations and corrections
     2019-2-28:  adding a second layer to the matching, using the first name of the first composer
     2019-3-9:   added checks to insure useable error messages when the BPB.csv file has incorrect data
+    2019-3-12:  added default variables for track object initialization to reduce the length of initializer list
 
- **************************************************************************************************/
+ ***************************************************************************************************************/
 
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  // Bullet Proof Bear is a music library company that administers rights on a collection of music. When a new library
@@ -61,11 +62,13 @@ int main()
 
     std::cout << "\n<Press Enter to begin searching the PRO csv for matches to BPB titles>\n";
     std::cin.ignore();
+    std::cout << "\n<...Searching...>\n";
+//    std::cout << "";
 
     std::thread worker1;
     std::thread worker2;
     std::thread worker3;
-
+                                                                                                  // concurrent search
     worker1 = std::thread(ascap_import_data_and_search_titles, std::ref(bpb_data), "./ascap.csv");   // ascap search
     worker2 = std::thread(sesac_import_data_and_search_titles, std::ref(bpb_data), "./sesac.csv");   // sesac search
     worker3 = std::thread(bmi_import_data_and_search_titles, std::ref(bpb_data));                    // bmi search

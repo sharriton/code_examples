@@ -35,6 +35,16 @@ namespace BPB {
         bool should_have_reg_with_sesac{};
         bool should_have_reg_with_bmi{};
 
+        explicit track(int i, string t, vector<string> w, vector<string> w_p,
+              vector<string> p, vector<string> pr, vector<string> s,
+              bool found_a = false, bool found_s = false, bool found_b = false,
+              bool should_have_reg_a = false, bool should_have_reg_s = false,
+              bool should_have_reg_b = false) :
+              index{i}, title{t}, writer{w}, writer_pro{w_p}, publisher{p}, pro{pr}, share{s},
+              found_in_ascap{found_a},found_in_sesac{found_s},found_in_bmi{found_b},
+              should_have_reg_with_ascap{should_have_reg_a}, should_have_reg_with_sesac{should_have_reg_s},
+              should_have_reg_with_bmi{should_have_reg_b} {}
+
         bool operator==(const std::vector<track>:: iterator right);
         bool operator==(const string & a);
     };
@@ -61,8 +71,8 @@ namespace BPB {
         ascap (string pro,int rows) : DATA{pro},row_cnt{rows} {}
         ~ascap() {};
         void data_parse(FILES &a);
-        vector <string> push_pro_info_1st_time(FILES &a, int index);
-        vector <string> push_pro_info(FILES &a,int index,string old);
+        vector <string> push_pro_info_1st_time(FILES &a);
+        vector <string> push_pro_info(FILES &a,const string & old);
 //    private:
         int row_cnt;
 
@@ -114,7 +124,7 @@ void print_titles(T &data)
 
     for (int i = 0 ; i < std::size(data.track_data) ; ++i)
     {
-        if((i == 0 || i == 1) && offset == 2)    // if this is a bpb track_data skip 2 indexes so
+        if((i == 0 || i == 1) && offset == 2)    // if this is track_data from bpb object skip 2 indexes so
             continue;                            // i lines up with the row number in the csv.
         std::cout << "\n" << i + offset << " " << (data.track_data.begin()+i)->title;
     }
@@ -122,7 +132,7 @@ void print_titles(T &data)
 }
 
 int number_of_rows(BPB::FILES &file);
-void ask_for_user_to_download(int d,std::string destination);
+void ask_for_user_to_download(int dest,std::string website);
 bool navigate_to_sites();
 void ascap_download();
 void sesac_download();
@@ -142,5 +152,5 @@ void error_message(std::string const & field_name, std::string const & message, 
 void error_message(std::string const & field_name, std::string const & message, int index,int pub_num);
 void error_message(std::string const & message);
 inline bool is_Float(const std::string & s);
-bool IsLetters(const const std::string & input);
+bool IsLetters(const std::string & input);
 size_t stringCount(const std::string& referenceString, const std::string& subString);

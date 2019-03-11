@@ -18,11 +18,7 @@ bool navigate_to_sites()
     std::cout << "\nWould you like to navigate to the PRO websites? y/n>\n";
     string c;
     getline(std::cin,c);
-    if (c[0] == 'n')
-        return false;
-    else
-        return true;
-
+    return c[0] == 'y';
 }
 
 void bpb::ask_user_if_print()
@@ -231,11 +227,13 @@ void bpb::are_these_registered()
 
     }
     results << "\n<<<" << need_updated_registrations << " tracks need updated registrations!>>>\n";
+
+    std::cout<< "\nAll results added to text file results.txt which is in the same folder as the .exe";
 }
 
-void ask_for_user_to_download(int dest,string destination)
+void ask_for_user_to_download(int dest,string website)
 {
-    std::cout << "\n<Press Enter to open up the " + destination + " repository website>\n";
+    std::cout << "\n<Press Enter to open up the " + website + " repository website>\n";
     switch(dest)
     {
         case 1:
@@ -250,10 +248,13 @@ void ask_for_user_to_download(int dest,string destination)
             std::cin.ignore();
             bmi_download();
             break;
+        default:
+            std::cout << "\nNew Case needed to be added to ask_for_user_to_download function!";
+            exit(1);
     }
 }
 
-vector<string> ascap::push_pro_info_1st_time(FILES &a,int index)
+vector<string> ascap::push_pro_info_1st_time(FILES &a)
 {
     string temp{};
     vector<string> temp_v {};
@@ -265,7 +266,7 @@ vector<string> ascap::push_pro_info_1st_time(FILES &a,int index)
     return temp_v;
 }
 
-vector<string> ascap::push_pro_info(FILES &a,int index,string old)
+vector<string> ascap::push_pro_info(FILES &a,const string & old)
 {
     string temp = old;
     vector<string> temp_v {};
@@ -316,11 +317,11 @@ void ascap::data_parse(FILES &a)
         {
             clean_string(temp);                // remove trailing ' ' and any \n and \r
             temp_title = temp;                 // assign title
-            temp_writer_pro = push_pro_info_1st_time(a,index); // read and assign pro info 1st time only
+            temp_writer_pro = push_pro_info_1st_time(a); // read and assign pro info 1st time only
             first_time = false;
         }
         else
-            temp_writer_pro = push_pro_info(a,index,temp);     // read and assign pro with this function every time after 1st time
+            temp_writer_pro = push_pro_info(a,temp);     // read and assign pro with this function every time after 1st time
 
         getline(a.f, temp, ',');               // read and discard second use of same title
 
@@ -346,8 +347,8 @@ void ascap::data_parse(FILES &a)
                 ++index;
 
                 // push_back all the data of one composition of music into the vector
-                track_data.push_back({++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},{temp_pro},{temp_share}
-                ,false,false,false,false,false,false});
+                track_data.push_back(track{++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},{temp_pro},{temp_share}
+                });
                 temp_title = temp;             // next track title
                 getline(a.f, temp);            // skip to next line
                                                //reset all variables to prepare for parsing next tracks data
@@ -391,8 +392,8 @@ void sesac::data_parse(FILES &a)
         else if (temp != temp_title)                 // if not equal it means we have a new track title
         {
             // push_back all the data of one composition of music into the vector
-            track_data.push_back({++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},{temp_pro},
-                                  {temp_share},false,false,false,false,false,false});
+            track_data.push_back(track{++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},{temp_pro},
+                                  {temp_share}});
 
             temp_title = temp;                       // new track title
             temp_pub.clear();
@@ -459,8 +460,8 @@ void bmi::data_parse(FILES &a)
         else if (temp != temp_title)                 // if not equal it means we have a new track title
         {
             // push_back all the data of one composition of music into the vector
-            track_data.push_back({++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},
-                                  {temp_pro},{temp_share},false,false,false,false,false,false});
+            track_data.push_back(track{++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},
+                                  {temp_pro},{temp_share}});
             temp_title = temp;
             temp_writer.clear();
             temp_writer_pro.clear();
@@ -616,7 +617,7 @@ void bpb::data_parse(FILES &a)
 //        for(const auto & writer : temp_writer)
 //        { std::cout << "\n" << writer; }
 
-        track_data.push_back({++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},{temp_pro},{temp_share}
+        track_data.push_back(track{++index,temp_title,{temp_writer},{temp_writer_pro},{temp_pub},{temp_pro},{temp_share}
         ,false,false,false,should_have_reg_with_ascap,should_have_reg_with_sesac,should_have_reg_with_bmi});
 
         getline(a.f, temp);                              // skip to next line
@@ -670,7 +671,7 @@ void remove_PARENTH(string & title)
     title.erase(std::remove(title.begin(),title.end(),')'),title.end());
 }
 
-void bpb::title_adjustments(void)
+void bpb::title_adjustments()
 {
     for (auto i = track_data.begin(); i < track_data.end()-1; ++i)
     {
@@ -739,6 +740,9 @@ string FILES::PRO_type()
         case bmi: return"bmi";
         case bpb: return"bpb";
         case sesac: return"sesac";
+        default:
+            std::cout << "\nERROR - UNKNOWN PRO TYPE";
+            exit(1);
     }
 }
 
@@ -809,5 +813,4 @@ size_t stringCount(const std::string& referenceString,
     }
 
     return count;
-
 }
