@@ -20,7 +20,7 @@ The program then imports the data from each PRO and searches it for titles match
 it prints out the track titles and the registrations they are missing into results.txt.
 
 Due to the nature of my contract, I can’t upload the main database. The code opens in a text file or IDE if you want to 
-see my work, but it won't actually run without the BPB database csv. 
+see my work, but it won't actually run without the BPB, ASCAP, SESAC, BMI csv files. 
 __________________
 Customer
 __________________
