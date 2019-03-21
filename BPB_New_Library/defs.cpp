@@ -8,9 +8,27 @@
 #include <sstream>
 #include <vector>
 #include <type_traits>
+#include <thread>
 #include "declarations.h"
 
 using namespace BPB;
+
+thread_handle::thread_handle(std::thread&& t):t{std::move(t)}
+{
+    if(!t.joinable())
+        throw std::logic_error("No such thread");
+}
+
+thread_handle::~thread_handle()
+{
+    if(t.joinable())
+        t.join();
+}
+
+void thread_handle::kill()
+{
+    this->thread_handle::~thread_handle();
+}
 
 bool navigate_to_sites()
 {
@@ -39,6 +57,16 @@ bool track::operator==(const string & a)
 {
     return title == a;
 }
+
+track::track(int i, string t, vector<string> w, vector<string> w_p,
+               vector<string> p, vector<string> pr, vector<string> s,
+               bool found_a, bool found_s, bool found_b,
+               bool should_have_reg_a, bool should_have_reg_s,
+               bool should_have_reg_b) :
+        index{i}, title{t}, writer{w}, writer_pro{w_p}, publisher{p}, pro{pr}, share{s},
+        found_in_ascap{found_a},found_in_sesac{found_s},found_in_bmi{found_b},
+        should_have_reg_with_ascap{should_have_reg_a}, should_have_reg_with_sesac{should_have_reg_s},
+        should_have_reg_with_bmi{should_have_reg_b} {}
 
 int number_of_rows(std::fstream &keywords)
 {
@@ -321,7 +349,7 @@ void ascap::data_parse(FILES &a)
             first_time = false;
         }
         else
-            temp_writer_pro = push_pro_info(a,temp);     // read and assign pro with this function every time after 1st time
+            temp_writer_pro = push_pro_info(a,temp);  // read and assign pro with this function every time after 1st time
 
         getline(a.f, temp, ',');               // read and discard second use of same title
 
@@ -338,6 +366,8 @@ void ascap::data_parse(FILES &a)
                 getline(a.f, temp, ',');
                 temp_pub.push_back(temp);      // add publisher name
             }
+            else if (temp != "ASCAP")
+                error_message("RoleType","This field should contain W or P on this current iteration. Recheck data ",temp_title,index);
             getline(a.f, temp, ',');           // empty
             getline(a.f, temp, ',');           // grab title
 
@@ -788,6 +818,14 @@ void error_message(std::string const & message)
     std::cout << "\nERROR!\nERROR TYPE - " << message;
     exit(-1);
 }
+
+void error_message(std::string const & field_name, std::string const & message, std::string const & title,int index)
+{
+    std::cout << "\nERROR! - In row " << index << " with track title " << title << " inside " << field_name << " field";
+    std::cout << "\nERROR!\nERROR TYPE - " << message;
+    exit(-1);
+}
+
 bool IsLetters(const string & input)
 {
 

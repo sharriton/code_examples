@@ -39,11 +39,7 @@ namespace BPB {
               vector<string> p, vector<string> pr, vector<string> s,
               bool found_a = false, bool found_s = false, bool found_b = false,
               bool should_have_reg_a = false, bool should_have_reg_s = false,
-              bool should_have_reg_b = false) :
-              index{i}, title{t}, writer{w}, writer_pro{w_p}, publisher{p}, pro{pr}, share{s},
-              found_in_ascap{found_a},found_in_sesac{found_s},found_in_bmi{found_b},
-              should_have_reg_with_ascap{should_have_reg_a}, should_have_reg_with_sesac{should_have_reg_s},
-              should_have_reg_with_bmi{should_have_reg_b} {}
+              bool should_have_reg_b = false);
 
         bool operator==(const std::vector<track>:: iterator right);
         bool operator==(const string & a);
@@ -115,6 +111,17 @@ namespace BPB {
     };
 }
 
+class thread_handle
+{
+    std::thread t;
+public:
+    explicit thread_handle(std::thread&& t);
+    ~thread_handle();
+    void kill(void);
+    thread_handle(thread_handle const & ) = delete;
+    thread_handle& operator=(thread_handle const & ) = delete;
+};
+
 template<typename T>
 void print_titles(T &data)
 {
@@ -151,6 +158,7 @@ inline bool is_Integer(const std::string & s);
 void error_message(std::string const & field_name, std::string const & message, int index);
 void error_message(std::string const & field_name, std::string const & message, int index,int pub_num);
 void error_message(std::string const & message);
+void error_message(std::string const & field_name,std::string const & message,std::string const & title, int index);
 inline bool is_Float(const std::string & s);
 bool IsLetters(const std::string & input);
 size_t stringCount(const std::string& referenceString, const std::string& subString);
