@@ -14,6 +14,7 @@
     2019-2-28:  adding a second layer to the matching, using the first name of the first composer
     2019-3-9:   added checks to insure useable error messages when the BPB.csv file has incorrect data
     2019-3-12:  added default variables for track object initialization to reduce the length of initializer list
+    2019-3-18   added handle to threads to treat them using RAII
 
  ***************************************************************************************************************/
 
@@ -41,6 +42,7 @@
 #include <thread>
 #include "declarations.h"
 
+
 int main()
 {
     BPB::FILES bpb_csv("./bpb.csv");                                        // import bpb file
@@ -63,18 +65,14 @@ int main()
     std::cout << "\n<Press Enter to begin searching the PRO csv for matches to BPB titles>\n";
     std::cin.ignore();
     std::cout << "\n<...Searching...>\n";
+                            // concurrent search :: RAII used to ensure exception safety
+    thread_handle h1(std::thread(ascap_import_data_and_search_titles, std::ref(bpb_data), "./ascap.csv")); // ascap search
+    thread_handle h2(std::thread(sesac_import_data_and_search_titles, std::ref(bpb_data), "./sesac.csv")); // sesac search
+    thread_handle h3(std::thread(bmi_import_data_and_search_titles, std::ref(bpb_data)));                  // bmi search
 
-    std::thread worker1;
-    std::thread worker2;
-    std::thread worker3;
-                                                                                                  // concurrent search
-    worker1 = std::thread(ascap_import_data_and_search_titles, std::ref(bpb_data), "./ascap.csv");   // ascap search
-    worker2 = std::thread(sesac_import_data_and_search_titles, std::ref(bpb_data), "./sesac.csv");   // sesac search
-    worker3 = std::thread(bmi_import_data_and_search_titles, std::ref(bpb_data));                    // bmi search
-
-    worker1.join();
-    worker2.join();
-    worker3.join();
+    h1.kill();
+    h2.kill();
+    h3.kill();
 
     bpb_data.are_these_registered();
 
