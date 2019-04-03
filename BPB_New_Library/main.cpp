@@ -14,7 +14,8 @@
     2019-2-28:  adding a second layer to the matching, using the first name of the first composer
     2019-3-9:   added checks to insure useable error messages when the BPB.csv file has incorrect data
     2019-3-12:  added default variables for track object initialization to reduce the length of initializer list
-    2019-3-18   added handle to threads to treat them using RAII
+    2019-3-18:  added handle to threads to treat them using RAII
+    2019-4-1:   changed initializer list constructor for track class to use std::move for efficiency
 
  ***************************************************************************************************************/
 
@@ -42,7 +43,6 @@
 #include <thread>
 #include "declarations.h"
 
-
 int main()
 {
     BPB::FILES bpb_csv("./bpb.csv");                                        // import bpb file
@@ -53,7 +53,7 @@ int main()
                                                                             // that uses Bmi.csv's naming conventions
     bpb_data.ask_user_if_print();
 
-    bool decision = navigate_to_sites();
+    bool decision = navigate_to_sites();                                    // ask user if we should open websites
 
     if(decision)                                                            // if user wants to download the csv's
     {
@@ -65,14 +65,11 @@ int main()
     std::cout << "\n<Press Enter to begin searching the PRO csv for matches to BPB titles>\n";
     std::cin.ignore();
     std::cout << "\n<...Searching...>\n";
-                            // concurrent search :: RAII used to ensure exception safety
-    thread_handle h1(std::thread(ascap_import_data_and_search_titles, std::ref(bpb_data), "./ascap.csv")); // ascap search
-    thread_handle h2(std::thread(sesac_import_data_and_search_titles, std::ref(bpb_data), "./sesac.csv")); // sesac search
-    thread_handle h3(std::thread(bmi_import_data_and_search_titles, std::ref(bpb_data)));                  // bmi search
-
-    h1.kill();
-    h2.kill();
-    h3.kill();
+    {                                                                        // concurrent search
+        thread_handle h1(std::thread(ascap_import_data_and_search_titles, std::ref(bpb_data), "./ascap.csv")); // ascap search
+        thread_handle h2(std::thread(sesac_import_data_and_search_titles, std::ref(bpb_data), "./sesac.csv")); // sesac search
+        thread_handle h3(std::thread(bmi_import_data_and_search_titles, std::ref(bpb_data)));                  // bmi search
+    }                                                                        // all threads joined with destructor call
 
     bpb_data.are_these_registered();
 

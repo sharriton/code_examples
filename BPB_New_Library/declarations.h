@@ -55,11 +55,12 @@ namespace BPB {
         void are_these_registered();
         void ask_user_if_print();
         void title_adjustments(void);
-//    private:
-        int row_cnt;
 
         vector <string> titles_adjusted_for_bmi{};     //bmi has very specific naming conventions. A and THE are removed if first word of a title
         vector <track> track_data{};
+
+    private:
+        int row_cnt;
     };
     class ascap : public DATA
     {
@@ -69,9 +70,8 @@ namespace BPB {
         void data_parse(FILES &a);
         vector <string> push_pro_info_1st_time(FILES &a);
         vector <string> push_pro_info(FILES &a,const string & old);
-//    private:
-        int row_cnt;
 
+        int row_cnt;
         vector <track> track_data{};
     };
 
@@ -81,7 +81,7 @@ namespace BPB {
         bmi (string pro, int size) : DATA{pro}, row_cnt{size}{}
         ~bmi(){}
         void data_parse(FILES &a);
-//    private:
+
         int row_cnt;
         vector <track> track_data{};
     };
@@ -92,14 +92,13 @@ namespace BPB {
         sesac (string a) : DATA(a) {}
         ~sesac(){};
         void data_parse(FILES &a);
-//    private:
+
         vector <track> track_data{};
     };
 
     class FILES
     {
     public:
-
         string Path_name;
         enum pub {ascap,bmi,bpb,sesac};
         pub p;
@@ -115,9 +114,15 @@ class thread_handle
 {
     std::thread t;
 public:
-    explicit thread_handle(std::thread&& t);
     ~thread_handle();
-    void kill(void);
+
+    template<typename Callable,typename ... Args>
+    explicit thread_handle(Callable&& func,Args&& ... args):
+    t(std::forward<Callable>(func),std::forward<Args>(args)...)
+    {}
+
+    bool joinable() const noexcept;
+    void join(void);
     thread_handle(thread_handle const & ) = delete;
     thread_handle& operator=(thread_handle const & ) = delete;
 };
@@ -135,7 +140,6 @@ void print_titles(T &data)
             continue;                            // i lines up with the row number in the csv.
         std::cout << "\n" << i + offset << " " << (data.track_data.begin()+i)->title;
     }
-
 }
 
 int number_of_rows(BPB::FILES &file);

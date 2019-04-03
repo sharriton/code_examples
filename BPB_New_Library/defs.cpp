@@ -13,21 +13,20 @@
 
 using namespace BPB;
 
-thread_handle::thread_handle(std::thread&& t):t{std::move(t)}
-{
-    if(!t.joinable())
-        throw std::logic_error("No such thread");
-}
-
 thread_handle::~thread_handle()
 {
-    if(t.joinable())
-        t.join();
+    if(joinable())
+        join();
 }
 
-void thread_handle::kill()
+void thread_handle::join()
 {
-    this->thread_handle::~thread_handle();
+    t.join();
+}
+
+bool thread_handle::joinable() const noexcept
+{
+    return t.joinable();
 }
 
 bool navigate_to_sites()
@@ -63,7 +62,7 @@ track::track(int i, string t, vector<string> w, vector<string> w_p,
                bool found_a, bool found_s, bool found_b,
                bool should_have_reg_a, bool should_have_reg_s,
                bool should_have_reg_b) :
-        index{i}, title{t}, writer{w}, writer_pro{w_p}, publisher{p}, pro{pr}, share{s},
+        index{i}, title{std::move(t)}, writer{std::move(w)}, writer_pro{std::move(w_p)}, publisher{std::move(p)}, pro{std::move(pr)}, share{std::move(s)},
         found_in_ascap{found_a},found_in_sesac{found_s},found_in_bmi{found_b},
         should_have_reg_with_ascap{should_have_reg_a}, should_have_reg_with_sesac{should_have_reg_s},
         should_have_reg_with_bmi{should_have_reg_b} {}
@@ -177,13 +176,13 @@ void bmi_import_data_and_search_titles(BPB::bpb bpb)        // import bmi file v
     auto bpb_iterator_1 = bpb.titles_adjusted_for_bmi.begin();
     auto bpb_iterator_2 = bpb.track_data.begin();
 
-    for (int j = 0; j < std::size(bpb.titles_adjusted_for_bmi); ++j)
+    for (int j = 0; j < std::size(bpb.titles_adjusted_for_bmi); ++j)                                // for each track name in bpb
     {
-        auto found = find(bmi_data.track_data.begin(), bmi_data.track_data.end(), *bpb_iterator_1);
+        auto found = find(bmi_data.track_data.begin(), bmi_data.track_data.end(), *bpb_iterator_1); // see if its in bmi csv
 
-        if (found != bmi_data.track_data.end())
+        if (found != bmi_data.track_data.end())            // if match is found
         {
-            if(bpb_iterator_2->should_have_reg_with_bmi)
+            if(bpb_iterator_2->should_have_reg_with_bmi)   // if we noted that the track should have registered with bmi from the bpb.csv
             {
             string temp{};
             std::stringstream ss;
@@ -485,6 +484,7 @@ void bmi::data_parse(FILES &a)
         if(first_time)                               // first time we only assign title
         {
             temp_title = temp;
+            std::cout << "\n" << temp_title;
             first_time = false;                      // signifies first iteration of a new title
         }
         else if (temp != temp_title)                 // if not equal it means we have a new track title
@@ -686,7 +686,7 @@ void remove_COMMA(string & title)
 {
     auto b = title.find(',');
     if(b != std::string::npos)
-        title[b] = ' ';
+        title.erase(b,1);
 }
 
 void remove_DASH(string & title)
