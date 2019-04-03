@@ -10,13 +10,14 @@
 #include <vector>
 
 /*************************************************
-    BPB Synonym 1.0
-    Author: Steven Harriton, 2018
+    BPB Synonym 2.0
+    Author: Steven Harriton, 2019
     email: stevenharriton@gmail.com
 
     Changes:
     2018-10-10: fixed errors from input miscalculation
     2018-10-23: increased input speed from BPB file
+    2019-4-1:   RAII resource handle class added
  *************************************************/
 
 using namespace std;
@@ -30,7 +31,7 @@ public:
     int moods_index;
     int length_index;
     char buffer;
-    CSV(fstream &bpb)
+    explicit CSV(fstream &bpb)
     {
         moods_index = 28;
         length_index = 26;
@@ -39,19 +40,29 @@ public:
     void skip_to_field(fstream &bpb, int collumn_loc);
 };
 
-
 void fill(fstream &bpb,vector<string> &a);   // adding data from each field
 void fill2(fstream &bpb,vector<string> &a);  // adding data from last field in row
-void find_keywords(set<string> a[],vector <string> b[],int bpb_rows, int size);
+void find_keywords(set<string> a[],vector <string> b[],int bpb_rows, int keys);
 int BPB_rows_cnt;
 int number_of_rows(fstream &keywords);
-int get_month (void);
-int get_year (void);
+int get_month ();
+int get_year ();
 void concat_date(char * text_file_name, char file_extension);
-void create_dir (void);
+void create_dir ();
 void print(string);
 
-int main(void)
+template<typename T>
+class resource_handle                      // RAII handling memory on the heap
+{
+public:
+    explicit resource_handle(int row_size)
+    { collection = new T[row_size]; }
+    ~resource_handle()
+    {delete [] collection;}
+    T * collection;
+};
+
+int main()
 {
     fstream bpb("./bpb.csv");                      // open bpb
     if (!bpb.is_open())
@@ -65,32 +76,33 @@ int main(void)
     bpb.clear();
     bpb.seekg(0, bpb.beg);
 
-    size_t index = 9999;
-    string *mood = new string[BPB_rows_cnt];
+//    size_t index = 9999;
+
+    resource_handle <string> mood(BPB_rows_cnt);
 
     for (int i = 0; i < BPB_rows_cnt; ++i)    //  copying mood field to string
     {
         BPB.buffer = '\0';
         BPB.skip_to_field(bpb, BPB.moods_index);
-        getline(bpb, mood[i], '\"');
+        getline(bpb, mood.collection[i], '\"');
         bpb.ignore(10000, '\r');
-        cout << i << ". " << mood[i] << endl;
+        cout << i << ". " << mood.collection[i] << endl;
     }
 
     set <string> *a = new set<string>[BPB_rows_cnt];   // final collection for moods
 
     for (int j = 0; j < BPB_rows_cnt; ++j)
     {
-        long comma_cntr = count(mood[j].begin(),mood[j].end(),',');
+        long comma_cntr = count(mood.collection[j].begin(),mood.collection[j].end(),',');
         long word_start = 0;
-        long word_len = mood[j].find(',');
+        long word_len = mood.collection[j].find(',');
         for (int i = 0; i < comma_cntr + 1; ++i)
         {
             if (comma_cntr == (i))
-                word_len = mood[j].length();
-            a[j].insert(mood[j].substr(word_start, abs(word_len - word_start)));
+                word_len = mood.collection[j].length();
+            a[j].insert(mood.collection[j].substr((unsigned)word_start, (unsigned)abs(word_len - word_start)));
             word_start = word_len + 2;
-            word_len = (mood[j].find(',', word_len + 1));
+            word_len = (mood.collection[j].find(',', (unsigned)word_len + 1));
         }
     }
 
@@ -103,15 +115,17 @@ int main(void)
 
     bpb.seekg(0, bpb.beg);
 
-    vector<string> *bpb_import= new vector<string>[BPB_rows_cnt];
+//    vector<string> *bpb_import= new vector<string>[BPB_rows_cnt];
+    resource_handle<vector<string>> bpb_import(BPB_rows_cnt);
+
     for(int j = 0; j < BPB_rows_cnt ; ++j)
     {
         for (int i = 0; i <179;i++)
         {
             if(i < 178)
-                fill(bpb, bpb_import[j]);    // importing data with ", as delimiter
+                fill(bpb, bpb_import.collection[j]);    // importing data with ", as delimiter
             else
-                fill2(bpb, bpb_import[j]);   // importing last field with \r\n endline delimiter
+                fill2(bpb, bpb_import.collection[j]);   // importing last field with \r\n endline delimiter
         }
     }
 
@@ -128,29 +142,30 @@ int main(void)
         return 0;
     }
 
-    string *keywords_full_rows = new string[keys];
+//    string *keywords_full_rows = new string[keys];
+    resource_handle<string> keywords_full_rows(keys);
 
     counter = 0;
     while (keywords.good())
     {
-        getline(keywords, keywords_full_rows[counter], '\n');   // pulling in each row of keywords
+        getline(keywords, keywords_full_rows.collection[counter], '\n');   // pulling in each row of keywords
         ++counter;
     }
 
-    string temp = "";
+    string temp{};
     vector<string> *key_vec = new vector<string>[keys] ;        // breaking up string, pushing it to vector
     for (int i1 = 0; i1 < keys; ++i1)
     {
-        for (int l = 0; l < keywords_full_rows[i1].length(); ++l)
+        for (int l = 0; l < keywords_full_rows.collection[i1].length(); ++l)
         {
-            temp += keywords_full_rows[i1][l];
-            if(keywords_full_rows[i1][l] == ',')
+            temp += keywords_full_rows.collection[i1][l];
+            if(keywords_full_rows.collection[i1][l] == ',')
             {
                 temp.resize(temp.length() - 1);
                 key_vec[i1].emplace_back(temp);
                 temp = "";
             }
-            if(l == keywords_full_rows[i1].length()-1 )
+            if(l == keywords_full_rows.collection[i1].length()-1 )
             {
                 key_vec[i1].emplace_back(temp);
                 temp = "";
@@ -174,7 +189,7 @@ int main(void)
 
     for (int l1 = 0; l1 < BPB_rows_cnt; ++l1)    // writing data to new csv
     {
-        bpb_it = bpb_import[l1].begin();
+        bpb_it = bpb_import.collection[l1].begin();
         mood_it = a[l1].begin();
         for (int k1 = 0; k1 < 179; ++k1)
         {
@@ -197,9 +212,7 @@ int main(void)
                             break;
                         else
                             output << ", ";           // adds comma space between mood elements
-
                     }
-
                     output << "\",";      // add field delimiter
                 }
                 bpb_it++;                 // skips mood field of BPB_import
@@ -211,17 +224,15 @@ int main(void)
 
 
 int number_of_rows(fstream &keywords)
-        {
-                int counter = 0;
-                while(keywords.ignore(10000,'\r'))
-                {
-                    ++counter;
-                }
-            keywords.clear();
-            keywords.seekg(0,keywords.beg);
-                return counter;
-        };
+{
+    int counter = 0;
+    while(keywords.ignore(10000,'\r'))
+    { ++counter; }
 
+    keywords.clear();
+    keywords.seekg(0,keywords.beg);
+    return counter;
+};
 
 void concat_date(char * text_file_name, char * file_extension)
 {
@@ -233,18 +244,18 @@ void concat_date(char * text_file_name, char * file_extension)
     strcat(text_file_name,year);
     strcat(text_file_name,file_extension);
 }
-int get_month (void)
+
+int get_month ()
 {
-    time_t T = time(NULL);
+    time_t T = time(nullptr);
     struct tm tm = *localtime(&T);
     int month = tm.tm_mon + 1;
-
     return month;
 }
 
-int get_year (void)
+int get_year ()
 {
-    time_t T = time(NULL);
+    time_t T = time(nullptr);
     struct tm tm = *localtime(&T);
     int year = tm.tm_year + 1900;
 
@@ -253,7 +264,7 @@ int get_year (void)
 
 void CSV::skip_to_field(fstream &bpb, int collumn_loc)
 {
-            for (int delim_count = 0; delim_count < collumn_loc - 1;delim_count)
+            for (int delim_count = 0; delim_count < collumn_loc - 1;)
             {
                 bpb.get(buffer);
                 if (buffer == '\"')
@@ -269,7 +280,7 @@ void CSV::skip_to_field(fstream &bpb, int collumn_loc)
             }
 }
 
-void print(string s)
+void print(const string s)
 {
     cout << s << ",";
 }
@@ -310,11 +321,9 @@ void fill2(fstream &bpb,vector<string> &a)
         {
             bpb.get(c);
             temp += c;
-
             break;
         }
         flag = 1;
-
     }
     bpb.get(c);
     field += temp;
@@ -340,7 +349,8 @@ void find_keywords(set<string> a[],vector <string> b[],int bpb_rows, int keys)
                 {
                     flag = 1;                                   // set flag
                     break;
-                } else
+                }
+                else
                     b_it++;
             }
             if (flag == 1)                             // if keyword inside collection a
